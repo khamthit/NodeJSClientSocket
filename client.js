@@ -3,7 +3,7 @@ const axios = require("axios"); // Import axios
 const fs = require("fs");
 
 // Connect to the Socket.IO server
-const socket = io("http://localhost:3001");
+const socket = io("http://localhost:8042");
 
 // Emit the "username" event with a username
 socket.emit("username", "Khamthit 2", "Messages from client");
@@ -15,7 +15,7 @@ socket.on("update socketData by client", (data) => {
 
 async function fetchSocketData() {
   try {
-    const response = await axios.get("http://localhost:3001/api/socketData");
+    const response = await axios.get("http://localhost:8042/api/socketData");
     if (!response) {
       console.log("Socket data fetched from API-Server:", response.data);
     }
