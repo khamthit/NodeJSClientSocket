@@ -54,6 +54,43 @@ async function fetchSocketData() {
   }
 }
 
+async function fetchSocketDataChatNote() {
+  try {
+    // Construct API URL based on the Socket server URL
+    // This assumes the API is hosted on the same base URL and port as the Socket.IO server
+    const apiUrl = new URL("/api/socketData", SOCKET_SERVER_URL).toString();
+    console.log(`[Client] Fetching data from API: ${apiUrl}`);
+
+    const response = await axios.get(apiUrl);
+
+    if (response && response.data) {
+      console.log("[Client] Data fetched from API:", response.data);
+      // Validate the data before emitting
+      const { id, username, Message } = response.data;
+      if (id && username && Message) {
+        socket.emit("socketData", response.data);
+        console.log("[Client] Emitted 'socketData' to server:", response.data);
+      } else {
+        console.error("[Client] Invalid data structure from API:", response.data);
+      }
+    } else {
+      console.error("[Client] No data in response from API or empty response.");
+    }
+  } catch (error) {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error("[Client] API Error Response:", error.response.status, error.response.data);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error("[Client] API No Response:", error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error("[Client] API Request Setup Error:", error.message);
+    }
+  }
+}
+
 // Call fetchSocketData once when the client connects to the server
 socket.on("connect", () => {
   console.log(`[Client] Connected to server with ID: ${socket.id}. Fetching initial data...`);
@@ -70,6 +107,11 @@ socket.on("Add socketData", () => {
 socket.on("add attachfile socketData", () => {
   console.log("[Client] Received 'add attachfile socketData' from server. Fetching updated data...");
   fetchSocketData();
+});
+
+socket.on("addTicketChatNote", () => {
+  console.log("[Client] Received 'add attachfile socketData' from server. Fetching updated data...");
+  fetchSocketDataChatNote();
 });
 
 socket.on("connect_error", (err) => {
